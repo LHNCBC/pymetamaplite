@@ -49,7 +49,7 @@ def process(inputtext):
 
 
 def display_results(sent_resultlist):
-    """ process inputtext returning list of matches """
+    """ display list of matches """
     for sentence, matches in sent_resultlist:
         print('sentence: "%s"' % sentence)
         for term in matches:
