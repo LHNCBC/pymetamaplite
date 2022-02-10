@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pymetamaplite',
-      version='0.1',
+      version='0.2',
       description='MetaMapLite Entity Recognizer implementation',
       author='Willie Rogers',
       author_email='wjrogers@mail.nih.gov',
