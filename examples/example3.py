@@ -2,7 +2,7 @@ import argparse
 from collections import namedtuple
 from nltk import sent_tokenize, pos_tag
 from nltk.tokenize import TreebankWordTokenizer
-from metamaplite import MetaMapLite
+from metamaplite import MetaMapLite, postings_utils
 
 ivfdir = 'pathto/public_mm_lite/data/ivf/2020AA/USAbase'
 
@@ -18,10 +18,8 @@ stopwords = []
 excludedterms = []
 
 
-def process(ivfdir, inputtext):
+def process(mminst, inputtext):
     """ process inputtext returning list of matches """
-    mminst = MetaMapLite(ivfdir, use_sources, use_semtypes, postags,
-                         stopwords, excludedterms)
     # Named tuple Token contains token text in text, part of speech tag
     # in tag_, and charater offset is in idx.
     Token = namedtuple('Token', ['text', 'tag_', 'idx'])
@@ -45,7 +43,7 @@ def process(ivfdir, inputtext):
     return sent_resultlist
 
 
-def display_results(sent_resultlist):
+def display_results(mminst, sent_resultlist):
     """ display list of matches """
     for sentence, matches in sent_resultlist:
         print('sentence: "%s"' % sentence)
@@ -54,7 +52,8 @@ def display_results(sent_resultlist):
             print('    start: %d' % term.start)
             print('    end: %d' % term.end)
             print('    postings:')
-            for post in term.postings:
+            for post in postings_utils.add_semantic_types(mminst,
+                                                          term.postings):
                 print('      {}'.format(post))
 
 
@@ -75,5 +74,7 @@ if __name__ == '__main__':
                         default=ivfdir)
     args = parser.parse_args()
     inputtext = loadtextfile(args.inputfile)
-    sent_resultlist = process(args.ivfdir, inputtext)
-    display_results(sent_resultlist)
+    mminst = MetaMapLite(args.ivfdir, use_sources, use_semtypes, postags,
+                         stopwords, excludedterms)
+    sent_resultlist = process(mminst, inputtext)
+    display_results(mminst, sent_resultlist)

@@ -2,10 +2,7 @@ import nltk
 from collections import namedtuple
 from metamaplite import MetaMapLite
 
-ivfdir = '/path/to/public_mm_lite/data/ivf/2020AA/USAbase'
-gwa = '/net/lhcdevfiler/vol/cgsb5/ind/II_Group_WorkArea'
-pathto = gwa + '/wjrogers/Projects/public_mm_dist/test/metamaplite/3.6.2rc6'
-ivfdir = pathto + '/public_mm_lite/data/ivf/2020AA/USAbase'
+ivfdir = 'pathto/public_mm_lite/data/ivf/2020AA/USAbase'
 
 label = ''
 case_sensitive = False
