@@ -1,6 +1,13 @@
 # Description
 
+A minimal implementation of the MetaMapLite named entity recognizer in
+Python.
+
 # Prerequisites
+
++ Python 3.8
++ NLTK or some other library that supplies a part of speech tagger and
+  tokenizer.
 
 # Installation
 
@@ -14,15 +21,24 @@ Installation using setuptools
     cd pymetamaplite
     python setup.py install
 
+If you want to use the Natural Language Toolkit (NLTK) for
+Part-of-speech tagging and sentence segmentation, you can use pip to
+install it:
+
+    pip install --user nltk
+
+See documentation at https://nltk.org for more information on NLTK.
+
 # Usage
 
-The extension uses inverted indexes previously intended for use by the
-Java implementation of MetaMapLite.  The indexes are available at the
-MetaMapLite Web Page (https://metamap.nlm.nih.gov/MetaMapLite.html).
+This Python implementation of MetaMapLite uses inverted indexes
+previously intended for use by the Java implementation of MetaMapLite.
+The indexes are available at the MetaMapLite Web Page
+(https://metamap.nlm.nih.gov/MetaMapLite.html).
 
 Below is an an example of using the MetaMapLite module on the string
-'inferior vena cava stent filter' using NLTK to provide part-of-speech
-tagging:
+"inferior vena cava stent filter" using NLTK to provide part-of-speech
+tagging and tokenization:
 
 	import nltk
 	from collections import namedtuple
@@ -125,7 +141,19 @@ output:
 
 * Cython
 
-# Speeding up pyMetaMapLite: Using Cython
+# Speeding up pyMetaMapLite
+
+## Using Pyston
+
+Both NLTK and pyMetaMapLite can be run in Pyston.  Pyston provides
+many of the speedups of Cython without requiring translation of the
+Python to the C language which may be problematic on some platforms.
+
++ Pyston Gihub page: https://github.com/pyston/pyston
++ Documentation on installing Pyston in an existing conda installation:
+  https://github.com/pyston/pyston/wiki/Using-conda
+
+## Using Cython
 
 Certain computationally expensive sections of pyMetaMapLite can be sped up
 using Cython (https://cython.org).  Cython is an optimizing static
@@ -164,3 +192,4 @@ Then re-install pymetamaplite:
 	$ pip install cython
     $ pip install .
 
+For small collections of text this may not be worth the trouble.
