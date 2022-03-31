@@ -21,8 +21,6 @@ from collections import namedtuple
 import mmap
 import os.path
 from metamaplite.dictionary import paths
-import logging
-from metamaplite.byteutils import bytes_to_int
 from metamaplite.dictionary.binary_search import binary_search, DictionaryEntry
 
 
@@ -56,7 +54,6 @@ class Dictionary:
 
     def list_entries(self, column, termlength):
         "list all entries in dictionary partition"
-        logging.debug('list_entries(%s, %s)', column, termlength)
         elements = []
         if not (column, termlength) in self.statsfn:
             self.statsfn[(column, termlength)] = paths.gen_statsfn(
@@ -64,9 +61,6 @@ class Dictionary:
                 self.irindex.indexname,
                 column,
                 termlength)
-        logging.debug('statsfn: %s, path exists: %s',
-                      self.statsfn[(column, termlength)],
-                      os.path.exists(self.statsfn[(column, termlength)]))
         if (column, termlength) in self.stats_dict:
             stats_dict = self.stats_dict[(column, termlength)]
         else:
@@ -74,7 +68,7 @@ class Dictionary:
                 self.stats_dict[(column, termlength)] = load_stats
                 (self.statsfn[(column, termlength)])
                 stats_dict = self.stats_dict[(column, termlength)]
-        logging.debug('stats: %s', stats_dict)
+        # logging.debug('stats: %s', stats_dict)
         if (column, termlength) in self.dictfn_dict:
             dictfn = self.dictfn_dict[(column, termlength)]
         else:
@@ -96,13 +90,12 @@ class Dictionary:
                 stats_dict.reclength):
             elements.append(DictionaryEntry(
                 term=dictarray[i:i+stats_dict.termlength],
-                numposts=bytes_to_int(
+                numposts=int.from_bytes(
                     dictarray[i+stats_dict.termlength:
-                              i+stats_dict.termlength+8]),
-                address=bytes_to_int(
+                              i+stats_dict.termlength+8], "big"),
+                address=int.from_bytes(
                     dictarray[i+stats_dict.termlength+8:
-                              i+stats_dict.reclength])))
-            logging.debug('%d: %s', i, elements[-1])
+                              i+stats_dict.reclength], "big")))
         return elements
 
     def find_entry(self, column, term):
@@ -115,9 +108,6 @@ class Dictionary:
                 self.irindex.indexname,
                 column,
                 termlength)
-        logging.debug('statsfn: %s, path exists: %s',
-                      self.statsfn[(column, termlength)],
-                      os.path.exists(self.statsfn[(column, termlength)]))
 
         if (column, termlength) in self.stats_dict:
             stats_dict = self.stats_dict[(column, termlength)]
@@ -128,7 +118,6 @@ class Dictionary:
                 stats_dict = self.stats_dict[(column, termlength)]
             else:
                 stats_dict = {}
-        logging.debug('stats: %s', stats_dict)
 
         if (column, termlength) in self.dictfn_dict:
             dictfn = self.dictfn_dict[(column, termlength)]

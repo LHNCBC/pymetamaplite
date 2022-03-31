@@ -14,10 +14,10 @@ for that term:
 """
 
 from collections import namedtuple
-from metamaplite.byteutils import bytes_to_int
 
 DictionaryEntry = namedtuple('DictionaryEntry', ['term', 'numposts',
                                                  'address'])
+
 
 def binary_search(dictarray, word, wordlen, datalen, numrecs):
     low = 0
@@ -35,5 +35,6 @@ def binary_search(dictarray, word, wordlen, datalen, numrecs):
             count = dictarray[address+wordlen:address+wordlen+8]
             address = dictarray[address+wordlen+8:address+wordlen+16]
             return DictionaryEntry(str(word, encoding='utf-8'),
-                                   bytes_to_int(count), bytes_to_int(address))
+                                   int.from_bytes(count, 'big'),
+                                   int.from_bytes(address, 'big'))
     return None

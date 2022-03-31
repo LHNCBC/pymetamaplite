@@ -27,7 +27,6 @@ from collections import namedtuple
 import mmap
 import logging
 from metamaplite.dictionary import paths
-from metamaplite.byteutils import bytes_to_int
 
 ExtentEntry = namedtuple('ExtentEntry', ['start', 'length'])
 
@@ -65,9 +64,8 @@ class Extents:
         logging.debug('start: %d, end: %d, step: %d',
                       offset, offset+(count*16), 16)
         for i in range(offset, offset+(count*16), 16):
-            logging.debug('i: %d', i)
-            start = bytes_to_int(extentsarray[i:i+8])
-            length = bytes_to_int(extentsarray[i+8:i+16])
+            start = int.from_bytes(extentsarray[i:i+8], 'big')
+            length = int.from_bytes(extentsarray[i+8:i+16], 'big')
             logging.debug('start: %s, length: %s', start, length)
             extentslist.append(ExtentEntry(start=start, length=length))
         return extentslist
