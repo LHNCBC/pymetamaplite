@@ -1,5 +1,4 @@
 import argparse
-import logging
 from metamaplite.dictionary import paths, extents, postings, Dictionary
 
 
@@ -19,48 +18,35 @@ class IRIndex:
 
     def lookup(self, term_or_tokens, column):
         """ lookup term in specified column in index"""
-        logging.debug('lookup("%s", %s)', term_or_tokens, column)
-        if isinstance(term_or_tokens, list):
+        if type(term_or_tokens) is list:
             term = ' '.join(term_or_tokens)
         else:
             term = term_or_tokens
         postingslist = []
         dict = Dictionary(self)
-        logging.debug('find_entry("%s", %s)', column, term)
         dictentry = dict.find_entry(column, term)
         if dictentry:
-            logging.debug('bs found: %s %s %s' % dictentry)
             extentsinst = extents.Extents(self)
             extentlist = extentsinst.get_extents(column, len(term),
                                                  dictentry.address,
                                                  dictentry.numposts)
-            logging.debug('extents: %s' % extentlist)
             postingsinst = postings.Postings(self)
             postingslist = postingsinst.get_postings(extentlist)
-            logging.debug('postingslist: %s' % postingslist)
         return postingslist
 
 
 def process0(ivfdir, indexname, column, term, verbose=False):
     """ initial version of process lookup """
-    logging.debug('process(%s, %s, %s, %s, %s)',
-                  ivfdir, indexname, column, term, verbose)
+    print('process(%s, %s, %s, %s, %s)',
+          ivfdir, indexname, column, term, verbose)
     index = IRIndex(ivfdir, indexname)
-    # found = []
-    # for entry in index.list_entries(column, len(term)):
-    #     if entry.term == term.encode('utf-8'):
-    #         found.append(entry)
-    #     print(entry)
-    # print('found: %s' % found)
     dict = Dictionary(index)
     dictentry = dict.find_entry(column, term)
     if dictentry:
-        logging.debug('dictionary entry: %s %s %s' % dictentry)
         extentsinst = extents.Extents(index)
         extentlist = extentsinst.get_extents(column, len(term),
                                              dictentry.address,
                                              dictentry.numposts)
-        logging.debug('extents: %s' % extentlist)
         postingsinst = postings.Postings(index)
         postingslist = postingsinst.get_postings(extentlist)
         print('postingslist:')
@@ -72,8 +58,6 @@ def process0(ivfdir, indexname, column, term, verbose=False):
 
 def process(ivfdir, indexname, column, term, verbose=False):
     """ current version of process lookup """
-    logging.debug('process(%s, %s, %s, %s, %s)',
-                  ivfdir, indexname, column, term, verbose)
     index = IRIndex(ivfdir, indexname)
     postingslist = index.lookup(term, column)
     if postingslist:
