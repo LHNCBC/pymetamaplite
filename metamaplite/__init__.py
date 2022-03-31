@@ -8,6 +8,7 @@ from metamaplite.find_longest_match import find_longest_match
 from metamaplite.subsume import remove_subsumed_entities, resolve_overlaps
 from metamaplite.filtering import restrict_postings_to_sources
 from metamaplite.filtering import restrict_postings_to_semantic_types
+from metamaplite.simple_cache import SimpleCache
 
 Term = namedtuple('Term', ['text', 'start', 'end', 'postings'])
 
@@ -19,7 +20,8 @@ class MetaMapLite():
                               'NNP', 'NNPS', 'JJ', 'JJR', 'JJS', 'LS']),
                  stopwords=[],
                  excludedterms=[],
-                 minimum_length=3):
+                 minimum_length=3,
+                 use_cache=False):
         """ Initialize MetaMapLite instance
 
         PARAMS:
@@ -54,6 +56,13 @@ class MetaMapLite():
             self.excludedterms = excludedterms
         else:
             self.excludedterms = set(excludedterms)
+        # lookup index caches
+        if use_cache:
+            self.use_cache = use_cache
+            self.index = SimpleCache(self.index)
+            self.semtypeindex = SimpleCache(self.semtypeindex)
+            self.cuiconceptindex = SimpleCache(self.cuiconceptindex)
+            self.treecodeindex = SimpleCache(self.treecodeindex)
 
     def set_semtypes(self, semtypelist):
         """ set restrict to semantic type list """
