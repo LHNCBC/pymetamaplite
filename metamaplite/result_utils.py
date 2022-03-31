@@ -8,12 +8,13 @@ from metamaplite import postings_utils
 NewTerm = namedtuple('NewTerm', ['text', 'start', 'end', 'postings'])
 
 
-def add_semantic_types(mminst, resultlist):
-    newresultlist = []
-    for item in resultlist:
+def add_semantic_types(mminst, evlist):
+    """ Add semantic type to ev result list. """
+    newevlist = []
+    for item in evlist:
         postings = postings_utils.add_semantic_types(mminst, item.postings)
-        newresultlist.append(NewTerm(text=item.text,
-                                     start=item.start,
-                                     end=item.end,
-                                     postings=postings))
-    return newresultlist
+        newevlist.append(NewTerm(text=item.text,
+                                 start=item.start,
+                                 end=item.end,
+                                 postings=postings))
+    return newevlist
