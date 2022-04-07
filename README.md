@@ -143,6 +143,19 @@ output:
 
 # Speeding up pyMetaMapLite
 
+## Entity Lookup Caching
+
+By using the optional parameter __use_cache=True__ when instantiating
+the MetaMapLite instance lookups for strings, semantic types, and
+preferred names will be cached after the initial lookup.  Any
+subsequent lookup will use the cache directly instead of accessing the
+index on disk.  This can result in a significant speed up for large
+corpora at the expense of using more memory:
+
+    mminst = MetaMapLite(ivfdir, use_sources, use_semtypes, postags,
+	                     stopwords, excludedterms, use_cache=True)
+
+
 ## Using Pyston
 
 Both NLTK and pyMetaMapLite can be run in Pyston.  Pyston provides
@@ -192,4 +205,4 @@ Then re-install pymetamaplite:
 	$ pip install cython
     $ pip install .
 
-For small collections of text this may not be worth the trouble.
+For small collections of text, this may not be worth the trouble.
