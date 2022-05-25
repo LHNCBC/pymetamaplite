@@ -13,6 +13,25 @@ from metamaplite.simple_cache import SimpleCache
 Term = namedtuple('Term', ['text', 'start', 'end', 'postings'])
 
 
+def remove_excluded_terms(matchlist, excludedterms):
+    newmatchlist = []
+    for match in matchlist:
+        newpostings = []
+        # Discard any postings for term with concept that are in
+        # excludedterms list.
+        for posting in match.postings:
+            fields = posting.split('|')
+            conceptterm = '{}:{}'.format(fields[0], match.text.lower())
+            if not conceptterm in excludedterms:
+                newpostings.append(posting)
+        if newpostings != []:
+            newmatchlist.append(Term(text=match.text,
+                                     start=match.start,
+                                     end=match.end,
+                                     postings=newpostings))
+    return newmatchlist
+
+
 class MetaMapLite():
 
     def __init__(self, ivfdir, sources=[], semtypes=[],
@@ -105,11 +124,12 @@ class MetaMapLite():
             #               (matchstring,
             #                tokensublist[0].idx,
             #                tokensublist[0].idx + len(matchstring)))
-            matches.append(Term(text=matchstring,
-                                start=tokensublist[0].idx,
-                                end=tokensublist[0].idx + len(matchstring),
-                                postings=postings))
-        newmatches0 = []
+            if not matchstring in self.stopwords:
+                matches.append(Term(text=matchstring,
+                                    start=tokensublist[0].idx,
+                                    end=tokensublist[0].idx + len(matchstring),
+                                    postings=postings))
+        newmatches0 = remove_excluded_terms(matches, self.excludedterms)
         if self.sources:
             for match in matches:
                 if restrict_postings_to_sources(match.postings, self.sources):
