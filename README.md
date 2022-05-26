@@ -7,27 +7,28 @@ Python.
 
 + Python 3.8
 + NLTK or some other library that supplies a part of speech tagger and
-  tokenizer.
+  a tokenizer.
 
-# Installation
+# Building and Installing pyMetaMapLite
 
-Installation using pip
+Building the wheel package from sources:
 
-    cd pymetamaplite
-    pip install .
+Installing prequisites using pip:
 
-Installation using setuptools
+    python3 -m pip install nltk
 
-    cd pymetamaplite
-    python setup.py install
+See NLTK documentation at https://nltk.org for more information on
+NLTK.
 
-If you want to use the Natural Language Toolkit (NLTK) for
-Part-of-speech tagging and sentence segmentation, you can use pip to
-install it:
+Building the wheel package from sources:
 
-    pip install --user nltk
+    python3 -m pip install --upgrade pip
+    python3 -m pip install --upgrade build
+    python3 -m build --no-isolation
 
-See documentation at https://nltk.org for more information on NLTK.
+Installing the wheel package into your virtual environment:
+
+    python3 -m pip install dist/pymetamaplite-0.3-py3-none-any.whl
 
 # Usage
 
@@ -43,7 +44,7 @@ tagging and tokenization:
 	import nltk
 	from collections import namedtuple
 	from metamaplite import MetaMapLite
-
+    
 	ivfdir = '/path/to/public_mm_lite/data/ivf/2020AA/USAbase'
 	label = ''
 	case_sensitive = False
@@ -60,17 +61,25 @@ tagging and tokenization:
     # the following defintion:
 	Token = namedtuple('Token', ['text', 'tag_', 'idx', 'start'])
 
+    def add_spans(postokenlist):
+        """Add spans to part-of-speech tokenlist of tuples of form:
+           (tokentext, part-of-speech-tag). """
+        tokenlist = []
+        start = 0
+        idx = 0
+        for token in postokenlist:
+            tokenlist.append(
+                Token(text=token[0], tag_=token[1], idx=idx, start=start))
+            start = start + len(token[0]) + 1
+    
+            idx += 1
+        return tokenlist
+
 	inputtext = 'inferior vena cava stent filter'
 	print('input text: "%s"' % inputtext)
 	texttokenlist = inputtext.split(' ')
 	postokenlist = nltk.pos_tag(texttokenlist)
-	tokenlist = []
-	start = 0
-	idx = 0
-	for token in postokenlist:
-		tokenlist.append(Token(text=token[0], tag_=token[1], idx=idx, start=start))
-		start = start + len(token[0]) + 1
-		idx += 1
+    tokenlist = add_spans(postokenlist)
 
 	# pass tokenlist to get_entities to find entities in the input
     # text.
@@ -126,21 +135,69 @@ output:
 	 start: 0
 	 end: 18
 	 postings:
-	   PostingSTS(cui='C0042458', sui='S0002351', idx='4', str='Inferior vena cava', src='SNM', termtype='PT', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S0002351', idx='5', str='Inferior vena cava', src='SNMI', termtype='PT', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S0002351', idx='6', str='Inferior vena cava', src='UWDA', termtype='PT', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S0002351', idx='7', str='Inferior vena cava', src='FMA', termtype='PT', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S0002351', idx='8', str='Inferior vena cava', src='SNOMEDCT_US', termtype='SY', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S0906979', idx='9', str='INFERIOR VENA CAVA', src='NCI_CDISC', termtype='PT', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S6146821', idx='11', str='inferior vena cava', src='CHV', termtype='PT', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S6146821', idx='12', str='inferior vena cava', src='NCI_NCI-GLOSS', termtype='PT', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S0380063', idx='23', str='Inferior Vena Cava', src='NCI', termtype='SY', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S0380063', idx='24', str='Inferior Vena Cava', src='NCI', termtype='PT', semtypeset=['bpoc'])
-	   PostingSTS(cui='C0042458', sui='S0380063', idx='25', str='Inferior Vena Cava', src='MSH', termtype='ET', semtypeset=['bpoc'])
-	   PostingSTS(cui='C1269024', sui='S0002351', idx='3', str='Inferior vena cava', src='SNOMEDCT_US', termtype='IS', semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S0002351', idx='4', 
+                  str='Inferior vena cava', src='SNM', termtype='PT',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S0002351', idx='5',
+                  str='Inferior vena cava', src='SNMI', termtype='PT',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S0002351', idx='6',
+                  str='Inferior vena cava', src='UWDA', termtype='PT',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S0002351', idx='7',
+                  str='Inferior vena cava', src='FMA', termtype='PT',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S0002351', idx='8',
+                  str='Inferior vena cava', src='SNOMEDCT_US', termtype='SY',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S0906979', idx='9',
+                  str='INFERIOR VENA CAVA', src='NCI_CDISC', termtype='PT',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S6146821', idx='11',
+                  str='inferior vena cava', src='CHV', termtype='PT',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S6146821', idx='12',
+                  str='inferior vena cava', src='NCI_NCI-GLOSS', termtype='PT',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S0380063', idx='23',
+                  str='Inferior Vena Cava', src='NCI', termtype='SY',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S0380063', idx='24',
+                  str='Inferior Vena Cava', src='NCI', termtype='PT',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C0042458', sui='S0380063', idx='25',
+                  str='Inferior Vena Cava', src='MSH', termtype='ET',
+                  semtypeset=['bpoc'])
+	   PostingSTS(cui='C1269024', sui='S0002351', idx='3',
+                  str='Inferior vena cava', src='SNOMEDCT_US', termtype='IS',
+                  semtypeset=['bpoc'])
 
-* Cython
 
+# Excluding Terms by Concept
+
+Format of excluded_terms list, each entry is the concept, and the term
+to be excluded for that concept separated by a colon (:).
+
+    excluded_terms = [
+        'C0004002:got'
+        'C0006104:bra'
+        'C0011710:doc'
+        'C0012931:construct'
+        'C0014522:ever'
+        'C0015737:national'
+        'C0018081:clap'
+        'C0023668:lie'
+        'C0025344:period'
+        'C0025344:periods'
+        'C0029144:optical'
+        'C0071973:prime']
+
+The excluded term list is provided as parameter during the
+instantiation of the MetaMapLite instance:
+		
+	mminst = MetaMapLite(ivfdir, use_sources, use_semtypes, postags,
+	                     stopwords, excludedterms=excluded_terms)
+	
 # Speeding up pyMetaMapLite
 
 ## Entity Lookup Caching
@@ -166,43 +223,3 @@ Python to the C language which may be problematic on some platforms.
 + Documentation on installing Pyston in an existing conda installation:
   https://github.com/pyston/pyston/wiki/Using-conda
 
-## Using Cython
-
-Certain computationally expensive sections of pyMetaMapLite can be sped up
-using Cython (https://cython.org).  Cython is an optimizing static
-compiler for both the Python programming language.
-
-If you are using Microsoft Windows 10 you must have
-"Microsoft Visual C++ Build Tools"
-(https://visualstudio.microsoft.com/visual-cpp-build-tools/) to
-compile the c files generated by Cython.  On Unix-like systems like
-Linux or MacOS either GCC or Clang (LLVM) must be installed.
-
-Modify setup.py to the following:
-
-    # -*- coding: utf-8 -*-
-
-    from setuptools import setup, find_packages
-    from Cython.Build import cythonize
-
-    setup(name='pymetamaplite',
-          version='0.2',
-          description='MetaMapLite Entity Recognizer implementation',
-          author='Willie Rogers',
-          author_email='wjrogers@mail.nih.gov',
-          url="https://metamap.nlm.nih.gov/",
-          license="Public Domain",
-          packages=find_packages(),
-          classifiers=[
-              "Programming Language :: Python :: 3",
-              "Operating System :: OS Independent",
-          ],
-          python_requires='>=3.6',
-          ext_modules=cythonize("*/*.py"))
-
-Then re-install pymetamaplite:
-
-	$ pip install cython
-    $ pip install .
-
-For small collections of text, this may not be worth the trouble.
