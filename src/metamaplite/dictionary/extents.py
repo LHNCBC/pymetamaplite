@@ -53,7 +53,7 @@ class Extents:
             extentsarray = self.extents_dict[(column, termlength)]
         else:
             if os.path.exists(extentfn):
-                extentsfp = open(extentfn)
+                extentsfp = open(extentfn, 'rb')
                 extentsarray = mmap.mmap(extentsfp.fileno(), 0,
                                          access=mmap.ACCESS_READ)
                 self.extents_dict[(column, termlength)] = extentsarray

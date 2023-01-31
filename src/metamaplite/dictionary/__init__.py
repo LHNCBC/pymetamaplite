@@ -17,11 +17,13 @@ See extents.py for information on extents file
 """
 
 from collections import namedtuple
-
+import sys
 import mmap
 import os.path
 from metamaplite.dictionary import paths
-from metamaplite.dictionary.binary_search import binary_search, DictionaryEntry
+from metamaplite.dictionary.binary_search import (binary_search,
+                                                  io_binary_search,
+                                                  DictionaryEntry)
 
 
 DictionaryStats = namedtuple('DictionaryStats', ['termlength', 'reclength',
@@ -32,8 +34,8 @@ def load_stats(statsfn):
     "load information about partition"
     stats_dict = {}
     fp = open(statsfn)
-    for l in fp.readlines():
-        fields = l.strip().split('|')
+    for line in fp.readlines():
+        fields = line.strip().split('|')
         stats_dict[fields[0]] = int(fields[1])
     fp.close()
     return DictionaryStats(termlength=int(stats_dict['termlength']),
@@ -65,8 +67,8 @@ class Dictionary:
             stats_dict = self.stats_dict[(column, termlength)]
         else:
             if os.path.exists(self.statsfn[(column, termlength)]):
-                self.stats_dict[(column, termlength)] = load_stats
-                (self.statsfn[(column, termlength)])
+                self.stats_dict[(column, termlength)] = load_stats(
+                    self.statsfn[(column, termlength)])
                 stats_dict = self.stats_dict[(column, termlength)]
         # logging.debug('stats: %s', stats_dict)
         if (column, termlength) in self.dictfn_dict:
@@ -79,7 +81,7 @@ class Dictionary:
         if dictfn in self.mmaparray_dict:
             dictarray = self.mmaparray_dict[dictfn]
         else:
-            dictfp = open(dictfn)
+            dictfp = open(dictfn, 'rb')
             dictarray = mmap.mmap(dictfp.fileno(), 0,
                                   access=mmap.ACCESS_READ)
             self.mmaparray_dict[dictfn] = dictarray
@@ -127,17 +129,27 @@ class Dictionary:
                                             column, termlength)
             self.dictfn_dict[(column, termlength)] = dictfn
         if os.path.exists(dictfn):
-            if dictfn in self.mmaparray_dict:
-                dictarray = self.mmaparray_dict[dictfn]
-            else:
-                dictfp = open(dictfn)
-                dictarray = mmap.mmap(dictfp.fileno(), 0,
-                                      access=mmap.ACCESS_READ)
-                self.mmaparray_dict[dictfn] = dictarray
-                dictfp.close()
+            if os.path.getsize(dictfn) > 0:
+                if dictfn in self.mmaparray_dict:
+                    dictarray = self.mmaparray_dict[dictfn]
+                else:
+                    dictfp = open(dictfn, 'rb')
+                    dictarray = mmap.mmap(dictfp.fileno(), 0,
+                                          access=mmap.ACCESS_READ)
+                    self.mmaparray_dict[dictfn] = dictarray
+                    dictfp.close()
 
-            word = term.lower().encode('utf-8')
-            return binary_search(dictarray, word, len(word),
-                                 stats_dict.datalength,
-                                 stats_dict.recordnum)
+                partition_size = stats_dict.recordnum * stats_dict.reclength
+                word = term.lower().encode('utf-8')
+                if dictarray.size() < partition_size:
+                    sys.stderr.write("""warning: mapped memory is smaller than\
+ partition size, using disk-based binary search\n""")
+                    with open(dictfn, 'rb') as chan:
+                        return io_binary_search(chan, word, len(word),
+                                                stats_dict.datalength,
+                                                stats_dict.recordnum)
+                else:
+                    return binary_search(dictarray, word, len(word),
+                                         stats_dict.datalength,
+                                         stats_dict.recordnum)
         return None

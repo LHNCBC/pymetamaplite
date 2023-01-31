@@ -38,3 +38,25 @@ def binary_search(dictarray, word, wordlen, datalen, numrecs):
                                    int.from_bytes(count, 'big'),
                                    int.from_bytes(address, 'big'))
     return None
+
+
+def io_binary_search(chan, word, wordlen, datalen, numrecs):
+    low = 0
+    high = numrecs
+    mid = 0
+    while low < high:
+        mid = int(low + (high - low) / 2)
+        address = int(mid * (wordlen + datalen))
+        chan.seek(address)
+        testword = chan.read(wordlen).lower()
+        if word < testword:
+            high = mid
+        elif word > testword:
+            low = mid + 1
+        else:
+            count = chan.read(8)
+            address = chan.read(8)
+            return DictionaryEntry(str(word, encoding='utf-8'),
+                                   int.from_bytes(count, 'big'),
+                                   int.from_bytes(address, 'big'))
+    return None

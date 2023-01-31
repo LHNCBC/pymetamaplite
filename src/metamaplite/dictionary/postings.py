@@ -31,7 +31,7 @@ class Postings:
                                           self.irindex.indexname)
         if self.postingsarray is None:
             if os.path.exists(postingsfn):
-                postingsfp = open(postingsfn)
+                postingsfp = open(postingsfn, 'rb')
                 self.postingsarray = mmap.mmap(postingsfp.fileno(), 0,
                                                access=mmap.ACCESS_READ)
                 postingsfp.close()
