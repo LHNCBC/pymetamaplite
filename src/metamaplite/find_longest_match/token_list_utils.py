@@ -1,5 +1,4 @@
 """ Token list utilities """
-from pprint import pprint
 
 
 def apply_head_subtokenlist_opt(list_of_tokenlists, tokenlist):
