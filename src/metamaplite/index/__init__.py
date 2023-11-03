@@ -65,7 +65,7 @@ def write_posting_and_extent(pbb, postings_chan, extents_chan, line):
         extents_chan.write(
             extent.start.to_bytes(8, byteorder='big'))
         extents_chan.write(
-            extent.end.to_bytes(8, byteorder='big'))
+            extent.length.to_bytes(8, byteorder='big'))
 
 
 class colkeyfunc:

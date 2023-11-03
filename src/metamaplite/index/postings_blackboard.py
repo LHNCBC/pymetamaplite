@@ -3,7 +3,7 @@
 import hashlib
 from collections import namedtuple
 
-Extent = namedtuple('Extent', ['start', 'end'])
+Extent = namedtuple('Extent', ['start', 'length'])
 
 
 class BlackBoard:
@@ -11,10 +11,10 @@ class BlackBoard:
     def __init__(self):
         self.dict = {}
 
-    def record(self, postings_str, start, end):
+    def record(self, postings_str, start, length):
         digest = hashlib.sha1(postings_str.encode('utf8')).hexdigest()
         if digest not in self.dict:
-            self.dict[digest] = Extent(start=start, end=end)
+            self.dict[digest] = Extent(start=start, length=length)
 
     def present(self, postings_str):
         digest = hashlib.sha1(postings_str.encode('utf8')).hexdigest()
