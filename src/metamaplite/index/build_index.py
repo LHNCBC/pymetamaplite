@@ -21,8 +21,7 @@ def build_indexes(ivfdir, sep='|'):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="""Validate indices created by irutils using
-        original flat files """)
+        description="""Build indices using flat files.""")
     parser.add_argument('ivfdir',
                         help='inverted file directory')
     args = parser.parse_args()
