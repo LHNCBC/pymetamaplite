@@ -65,9 +65,10 @@ def loadtextfile(inputfile):
         text = fp.read()
     return text
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="test spacy with metamaplite")
+        description="test metamaplite")
     parser.add_argument('inputfile',
                         help='file containing input text to process.')
     parser.add_argument('--ivfdir',
