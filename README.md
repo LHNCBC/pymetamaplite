@@ -13,22 +13,27 @@ Python.
 
 Building the wheel package from sources:
 
-Installing prequisites using pip:
+Installing prequisites using `pip`:
 
     python3 -m pip install nltk
 
-See NLTK documentation at https://nltk.org for more information on
+See NLTK documentation at <https://nltk.org> for more information on
 NLTK.
 
 Building the wheel package from sources:
 
     python3 -m pip install --upgrade pip
+    python3 -m pip install wheel
     python3 -m pip install --upgrade build
+    python3 -m build
+
+In some environments, you might need to run `build` with the `--no-isolation` option.
+
     python3 -m build --no-isolation
 
 Installing the wheel package into your virtual environment:
 
-    python3 -m pip install dist/pymetamaplite-0.3-py3-none-any.whl
+    python3 -m pip install dist/pymetamaplite-{version}-py3-none-any.whl
 
 # Usage
 
@@ -198,16 +203,83 @@ instantiation of the MetaMapLite instance:
 	mminst = MetaMapLite(ivfdir, use_sources, use_semtypes, postags,
 	                     stopwords, excludedterms=excluded_terms)
 	
+# Building Indexes
+
+## Input Data Tables and Associated Formats
+
+The input tables are place in a directory (ivfdir) containing four files):
+
+    ivfdir
+      |-- tables
+            |-- ifconfig
+	        |-- mrconso.eng
+            |-- mrsat.rrf
+            |-- mrsty.rrf
+
+### mrconso.eng - Metathesaurus concepts
+
+Each record in this file contains the preferred name and synonyms for
+each concept as well as other information including vocabulary source
+identifier and any vocabulary specific term identifiers.
+
+    C0000005|ENG|P|L0000005|PF|S0007492|Y|A26634265||M0019694|D012711|MSH|PEP|D012711|(131)I-Macroaggregated Albumin|0|N|256|
+    C0000005|ENG|S|L0270109|PF|S0007491|Y|A26634266||M0019694|D012711|MSH|ET|D012711|(131)I-MAA|0|N|256|
+    C0000039|ENG|P|L0000039|PF|S0007564|N|A0016515||M0023172|D015060|MSH|MH|D015060|1,2-Dipalmitoylphosphatidylcholine|0|N|256|
+    C0000039|ENG|P|L0000039|PF|S0007564|N|A17972823||N0000007747||NDFRT|PT|N0000007747|1,2-Dipalmitoylphosphatidylcholine|0|N|256|
+    C0000039|ENG|P|L0000039|PF|S0007564|Y|A8394967||||MTH|PN|NOCODE|1,2-Dipalmitoylphosphatidylcholine|0|N|256|
+
+### mrsat.rrf
+
+
+### mrsty.rrf
+
+Semantic type identifiers assigned to each concept:
+
+
+## table generation from Metathesaurus files
+
+
+Not implemented in Python, See Java implementation in MetaMapLite.
+
+
+### ifconfig
+
+This file contains the schemas for tables used in the later sections:
+
+    cui_st.txt|cuist|2|0|cui|st|TXT|TXT
+    cui_sourceinfo.txt|cuisourceinfo|6|0,1,3|cui|sui|i|str|src|tty|TXT|TXT|INT|TXT|TXT|TXT
+    cui_concept.txt|cuiconcept|2|0,1|cui|concept|TXT|TXT
+    mesh_tc_relaxed.txt|meshtcrelaxed|2|0,1|mesh|tc|TXT|TXT
+    vars.txt|vars|7|0,2|term|tcat|word|wcat|varlevel|history||TXT|TXT|TXT|TXT|TXT|TXT|TXT
+
+
+
+
+## Index generation
+
+
+The program invocation:
+
+    python -m metamaplite.index.build_index ivfdir
+
+Generates:
+
+    ivfdir
+      |-- tables
+      |-- indices
+
+Where the directory indices contains the inverted index files.
+
 # Speeding up pyMetaMapLite
 
 ## Entity Lookup Caching
 
-By using the optional parameter __use_cache=True__ when instantiating
+By using the optional parameter `use_cache=True` when instantiating
 the MetaMapLite instance lookups for strings, semantic types, and
 preferred names will be cached after the initial lookup.  Any
 subsequent lookup will use the cache directly instead of accessing the
-index on disk.  This can result in a significant speed up for large
-corpora at the expense of using more memory:
+index on disk.  This can result in a significant speed up when
+processing large collections at the expense of using more memory:
 
     mminst = MetaMapLite(ivfdir, use_sources, use_semtypes, postags,
 	                     stopwords, excludedterms, use_cache=True)
@@ -215,11 +287,12 @@ corpora at the expense of using more memory:
 
 ## Using Pyston
 
-Both NLTK and pyMetaMapLite can be run in Pyston.  Pyston provides
-many of the speedups of Cython without requiring translation of the
-Python to the C language which may be problematic on some platforms.
+Both NLTK and pyMetaMapLite can be run in the Pyston implementation of
+Python.  Pyston provides many of the speedups of Cython without
+requiring translation of the Python to the C language which can be
+problematic on some platforms.
 
-+ Pyston Gihub page: https://github.com/pyston/pyston
++ Pyston Gihub page: <https://github.com/pyston/pyston>
 + Documentation on installing Pyston in an existing conda installation:
-  https://github.com/pyston/pyston/wiki/Using-conda
+  <https://github.com/pyston/pyston/wiki/Using-conda>
 
