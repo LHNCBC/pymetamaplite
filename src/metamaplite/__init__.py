@@ -9,6 +9,7 @@ from metamaplite.subsume import remove_subsumed_entities, resolve_overlaps
 from metamaplite.filtering import restrict_postings_to_sources
 from metamaplite.filtering import restrict_postings_to_semantic_types
 from metamaplite.simple_cache import SimpleCache
+from metamaplite.uda_lookup import UDALookup
 
 Term = namedtuple('Term', ['text', 'start', 'end', 'postings'])
 
@@ -22,7 +23,7 @@ def remove_excluded_terms(matchlist, excludedterms):
         for posting in match.postings:
             fields = posting.split('|')
             conceptterm = '{}:{}'.format(fields[0], match.text.lower())
-            if not conceptterm in excludedterms:
+            if conceptterm not in excludedterms:
                 newpostings.append(posting)
         if newpostings != []:
             newmatchlist.append(Term(text=match.text,
@@ -40,7 +41,8 @@ class MetaMapLite():
                  stopwords=[],
                  excludedterms=[],
                  minimum_length=3,
-                 use_cache=False):
+                 use_cache=False,
+                 uda_dict={}):
         """ Initialize MetaMapLite instance
 
         PARAMS:
@@ -75,6 +77,9 @@ class MetaMapLite():
             self.excludedterms = excludedterms
         else:
             self.excludedterms = set(excludedterms)
+        # user defined acronyms/abbreviations
+        if uda_dict != {}:
+            self.index = UDALookup(self.index, uda_dict)
         # lookup index caches
         if use_cache:
             self.use_cache = use_cache
@@ -92,9 +97,10 @@ class MetaMapLite():
         self.sources = sourcelist
 
     def lookup(self, tokensublist, column=3):
-        """Extract text part of tokens, join and call lookup. """
+        """Extract text part of tokens, join and call index lookup
+           function."""
         term = " ".join([token.text for token in tokensublist]).lower()
-        if len(term) >= self.minimum_length:
+        if len(term) >= self.minimum_length and (term not in self.stopwords):
             logging.debug('metamaplite:lookup():term: %s' % term)
             return self.index.lookup(term, column)
         else:
@@ -103,18 +109,27 @@ class MetaMapLite():
     def token_filter_func(self, tokenlist):
         """Return true if first token in tokenlist is in postags list and is
            not the word 'other'"""
-        if (tokenlist[0].text.lower() != 'other') & \
-           (tokenlist[0].tag_ in self.postags):
-            return True
-        else:
-            return False
+        return (tokenlist[0].text.lower() != 'other') & \
+            (tokenlist[0].tag_ in self.postags)
 
-    def get_entities(self, tokenlist, span_info=True):
+    def get_entities(self, tokenlist, span_info=True, aa_dict={}):
         """Given tokenlist, return list of Term instances matching entities
            in dictionary."""
         # logging.debug('get_entities')
         matches = []
-        resultlist = find_longest_match(tokenlist, self.lookup,
+        if aa_dict != {}:
+            def newlookup(tokensublist):
+                if len(tokensublist) == 1:
+                    term = tokensublist[0]
+                    return self.lookup(aa_dict[term].split(' ')
+                                       if term in aa_dict else [term])
+                else:
+                    return self.lookup(tokensublist)
+            lookup = newlookup
+        else:
+            lookup = self.lookup
+
+        resultlist = find_longest_match(tokenlist, lookup,
                                         self.token_filter_func)
         # logging.debug('get_entities: resultlist: %s' % resultlist)
         for tokensublist, postings in resultlist:
@@ -124,11 +139,10 @@ class MetaMapLite():
             #               (matchstring,
             #                tokensublist[0].idx,
             #                tokensublist[0].idx + len(matchstring)))
-            if not matchstring in self.stopwords:
-                matches.append(Term(text=matchstring,
-                                    start=tokensublist[0].idx,
-                                    end=tokensublist[0].idx + len(matchstring),
-                                    postings=postings))
+            matches.append(Term(text=matchstring,
+                                start=tokensublist[0].idx,
+                                end=tokensublist[0].idx + len(matchstring),
+                                postings=postings))
         newmatches0 = remove_excluded_terms(matches, self.excludedterms)
         if self.sources:
             for match in matches:
