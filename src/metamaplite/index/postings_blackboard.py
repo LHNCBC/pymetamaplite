@@ -21,3 +21,7 @@ class BlackBoard:
         if digest in self.dict:
             return self.dict[digest]
         return None
+
+    def reset(self):
+        """ Remove all elements from blackboard """
+        self.dict = {}

@@ -1,6 +1,7 @@
 """Index builder implementation library."""
 
 import os
+import sys
 from tqdm import tqdm
 from metamaplite.index.mru_file_manager import MRU_FileManager
 from metamaplite.index.postings_blackboard import BlackBoard
@@ -18,19 +19,22 @@ def create_temporary_tables(ivfdir, config_entry):
     if not os.path.exists('{}/indices/{}'.format(ivfdir, indexname)):
         os.mkdir('{}/indices/{}'.format(ivfdir, indexname))
     with open('{}/tables/{}'.format(ivfdir, tablefilename)) as chan:
-        for line in tqdm(chan.readlines()):
-            fields = line.split('|')
-            for column in config_entry.columnlist:
-                textbytes = fields[column].encode('utf-8')
-                bytelength = len(textbytes)
-                indexname_column_bytelength_set.add(
-                    (indexname, column, bytelength))
-                postchan = mru_inst.open(
-                    '{}/indices/{}/{}-{}-{}-postings.txt'.format(
-                        ivfdir, indexname,
-                        indexname, column, bytelength), 'a',
-                    encoding='utf-8')
-                postchan.write('{}\n'.format(line.strip()))
+        for line in tqdm(chan.readlines(), desc='table: {}'.format(indexname)):
+            try:
+                fields = line.split('|')
+                for column in config_entry.columnlist:
+                    textbytes = fields[column].encode('utf-8')
+                    bytelength = len(textbytes)
+                    indexname_column_bytelength_set.add(
+                        (indexname, column, bytelength))
+                    postchan = mru_inst.open(
+                        '{}/indices/{}/{}-{}-{}-postings.txt'.format(
+                            ivfdir, indexname,
+                            indexname, column, bytelength), 'a',
+                        encoding='utf-8')
+                    postchan.write('{}\n'.format(line.strip()))
+            except IndexError as ie:
+                sys.stderr.write('{}: line: {}, # fields: {}\n'.format(ie, line, len(fields)))
     mru_inst.close()
     return indexname_column_bytelength_set
 
@@ -104,7 +108,9 @@ def build_index(ivfdir, indexname, entry, sep='|', pbb=None):
                 offset_entry_start = 0
                 table_lines = [line.strip() for line in table_chan.readlines()]
                 table_lines.sort(key=colkeyfunc(column).keyfunc)
-                for line in tqdm(table_lines):
+                for line in tqdm(table_lines,
+                                 desc='index: {}:{}:{}'.format(
+                                     indexname, column, bytelen)):
                     # should this use normalize_meta_string instead?
                     new_term = line.split(sep)[column].lower()
                     # debug

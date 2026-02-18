@@ -17,12 +17,12 @@ class MRU_FileManager(object):
         self.max = size
 
     def add(self, key):
+        "Add key to cache."
         # if present, remove references to key in cache
         indexlist = []
         for index in range(len(self.cache)):
             if key == self.cache[index]:
                 indexlist.append(index)
-        indexlist.reverse()
         # remove any copies of this key in cache
         for index in indexlist:
             del self.cache[index]
