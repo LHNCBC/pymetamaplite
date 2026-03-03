@@ -13,6 +13,10 @@ from metamaplite.uda_lookup import UDALookup
 
 Term = namedtuple('Term', ['text', 'start', 'end', 'postings'])
 
+# Convert tokens and part of speech tags into named tuples with
+# the following defintion:
+Token = namedtuple('Token', ['text', 'tag_', 'idx', 'start'])
+
 
 def remove_excluded_terms(matchlist, excludedterms):
     newmatchlist = []
@@ -140,8 +144,8 @@ class MetaMapLite():
             #                tokensublist[0].idx,
             #                tokensublist[0].idx + len(matchstring)))
             matches.append(Term(text=matchstring,
-                                start=tokensublist[0].idx,
-                                end=tokensublist[0].idx + len(matchstring),
+                                start=tokensublist[0].start,
+                                end=tokensublist[0].start + len(matchstring),
                                 postings=postings))
         newmatches0 = remove_excluded_terms(matches, self.excludedterms)
         if self.sources:
