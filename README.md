@@ -11,27 +11,29 @@ Python.
 
 # Building and Installing pyMetaMapLite
 
-Building the wheel package from sources:
+To build the wheel package from sources:
 
-Installing prequisites using `pip`:
+Install the prequisite packages using `pip`:
 
     python3 -m pip install nltk
 
 See NLTK documentation at <https://nltk.org> for more information on
 NLTK.
 
-Building the wheel package from sources:
+Use the following commands to build the package for pymetamalite from
+sources:
 
     python3 -m pip install --upgrade pip
     python3 -m pip install wheel
     python3 -m pip install --upgrade build
     python3 -m build
 
-In some environments, you might need to run `build` with the `--no-isolation` option.
+If networking errors occur when building, run `build` with the
+`--no-isolation` option.
 
     python3 -m build --no-isolation
 
-Installing the wheel package into your virtual environment:
+Install the wheel package into your virtual environment:
 
     python3 -m pip install dist/pymetamaplite-{version}-py3-none-any.whl
 
@@ -207,7 +209,8 @@ instantiation of the MetaMapLite instance:
 
 ## Input Data Tables and Associated Formats
 
-The input tables are place in a directory (ivfdir) containing four files):
+The input tables are placed in a directory (ivfdir) containing four
+files):
 
     ivfdir
       |-- tables
@@ -228,19 +231,33 @@ identifier and any vocabulary specific term identifiers.
     C0000039|ENG|P|L0000039|PF|S0007564|N|A17972823||N0000007747||NDFRT|PT|N0000007747|1,2-Dipalmitoylphosphatidylcholine|0|N|256|
     C0000039|ENG|P|L0000039|PF|S0007564|Y|A8394967||||MTH|PN|NOCODE|1,2-Dipalmitoylphosphatidylcholine|0|N|256|
 
-### mrsat.rrf
+### mrsat.rrf -- Metathesaurus vocabulary source information
 
+This file lists vocabulary source and related source information such
+as term type, vocaubulary term identifier, etc. depending on
+vocabulary:
 
-### mrsty.rrf
+    C0000005|L0000005|S0007492|A26634265|AUI|D012711|AT212456753||TH|MSH|UNK (19XX)|N||
+    C0000005|L0000005|S0007492|A26634265|AUI|D012711|AT212480766||TERMUI|MSH|T037573|N||
+    C0000005|L0000005|S0007492|A26634265|SCUI|D012711|AT60774257||RN|MSH|0|N||
+    C0000005|L0270109|S0007491|A26634266|AUI|D012711|AT212327137||TERMUI|MSH|T037574|N||
+    C0000005|L0270109|S0007491|A26634266|AUI|D012711|AT212456754||TH|MSH|UNK (19XX)|N||
+    C0000005||||CUI||AT00368929||DA|MTH|19900930|N||
 
-Semantic type identifiers assigned to each concept:
+### mrsty.rrf -- Metathesaurus vocabulary semantic type assignments
 
+This file lists semantic type identifiers assigned to each concept:
+
+    C0000005|T116|A1.4.1.2.1.7|Amino Acid, Peptide, or Protein|AT17648347||
+    C0000005|T121|A1.4.1.1.1|Pharmacologic Substance|AT17575038||
+    C0000005|T130|A1.4.1.1.4|Indicator, Reagent, or Diagnostic Aid|AT17634323||
+    C0000039|T109|A1.4.1.2.1|Organic Chemical|AT45562015||
+    C0000039|T121|A1.4.1.1.1|Pharmacologic Substance|AT17567371||
+    C0000052|T116|A1.4.1.2.1.7|Amino Acid, Peptide, or Protein|AT08381079||
 
 ## table generation from Metathesaurus files
 
-
 Not implemented in Python, See Java implementation in MetaMapLite.
-
 
 ### ifconfig
 
@@ -252,11 +269,7 @@ This file contains the schemas for tables used in the later sections:
     mesh_tc_relaxed.txt|meshtcrelaxed|2|0,1|mesh|tc|TXT|TXT
     vars.txt|vars|7|0,2|term|tcat|word|wcat|varlevel|history||TXT|TXT|TXT|TXT|TXT|TXT|TXT
 
-
-
-
 ## Index generation
-
 
 The program invocation:
 
@@ -283,7 +296,6 @@ processing large collections at the expense of using more memory:
 
     mminst = MetaMapLite(ivfdir, use_sources, use_semtypes, postags,
 	                     stopwords, excludedterms, use_cache=True)
-
 
 ## Using Pyston
 
