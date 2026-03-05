@@ -1,6 +1,6 @@
 import nltk
 from collections import namedtuple
-from metamaplite import MetaMapLite
+from metamaplite import MetaMapLite, Token
 
 ivfdir = 'pathto/public_mm_lite/data/ivf/2020AA/USAbase'
 
@@ -14,7 +14,7 @@ stopwords = []
 excludedterms = []
 mminst = MetaMapLite(ivfdir, use_sources, use_semtypes, postags,
                      stopwords, excludedterms)
-Token = namedtuple('Token', ['text', 'tag_', 'idx', 'start'])
+
 inputtext = 'inferior vena cava stent filter'
 print('input text: "%s"' % inputtext)
 texttokenlist = inputtext.split(' ')
@@ -34,4 +34,3 @@ for term in matches:
     print(' postings:')
     for post in term.postings:
         print('   %s' % post)
-        

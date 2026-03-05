@@ -2,7 +2,7 @@ import argparse
 from collections import namedtuple
 from nltk import sent_tokenize, pos_tag
 from nltk.tokenize import TreebankWordTokenizer
-from metamaplite import MetaMapLite, postings_utils
+from metamaplite import MetaMapLite, postings_utils, Token
 
 ivfdir = 'pathto/public_mm_lite/data/ivf/2020AA/USAbase'
 
@@ -20,9 +20,6 @@ excludedterms = []
 
 def process(mminst, inputtext):
     """ process inputtext returning list of matches """
-    # Named tuple Token contains token text in text, part of speech tag
-    # in tag_, and charater offset is in idx.
-    Token = namedtuple('Token', ['text', 'tag_', 'idx'])
     print('input text: "%s"' % inputtext)
 
     # break text into sentences before tagging
@@ -34,9 +31,9 @@ def process(mminst, inputtext):
         texttokenlist = [sentence[start:end] for start, end in spanlist]
         postokenlist = pos_tag(texttokenlist)
         tokenlist = []
-        for token, span in zip(postokenlist, spanlist):
+        for idx, (token, span) in enumerate(zip(postokenlist, spanlist)):
             tokenlist.append(Token(text=token[0], tag_=token[1],
-                                   idx=(sentidx+span[0])))
+                                   idx=idx, start=(sentidx+span[0])))
         matches = mminst.get_entities(tokenlist, span_info=True)
         sent_resultlist.append((sentence, matches))
         sentidx = sentidx + len(sentence) + 1
