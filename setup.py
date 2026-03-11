@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from Cython.Build import cythonize
 
 setup(name='pymetamaplite',
-      version='0.2',
+      version='0.5.2',
       description='MetaMapLite Entity Recognizer implementation',
       author='Willie Rogers',
       author_email='wjrogers@mail.nih.gov',
