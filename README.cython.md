@@ -13,6 +13,8 @@ Linux or MacOS either GCC or Clang (LLVM) must be installed.
 Note: these instructions are subject to change for previous and future
 versions of Python.
 
+For small collections of text, this may not be worth the trouble.
+
 ## Cython TOML configuration for Python 3.13
 
 pyproject.toml modified for Cython:
@@ -20,36 +22,6 @@ pyproject.toml modified for Cython:
     [build-system]
     requires = ["setuptools>=42", "Cython", "wheel", "build"]
     build-backend = "setuptools.build_meta"
-
-
-## Using setup.py
-
-Modify setup.py to the following:
-
-    # -*- coding: utf-8 -*-
-
-    from setuptools import setup, find_packages
-    from Cython.Build import cythonize
-
-    setup(name='pymetamaplite',
-          version='0.2',
-          description='MetaMapLite Entity Recognizer implementation',
-          author='Willie Rogers',
-          author_email='wjrogers@mail.nih.gov',
-          url="https://metamap.nlm.nih.gov/",
-          license="Public Domain",
-          packages=find_packages(),
-          classifiers=[
-              "Programming Language :: Python :: 3",
-              "Operating System :: OS Independent",
-          ],
-          python_requires='>=3.6',
-          ext_modules=cythonize("*/*.py"))
-
-Then re-install pymetamaplite:
-
-	$ pip install cython
-    $ pip install .
 
 ## Using setup.cfg
 
@@ -83,6 +55,35 @@ Modify setup.cfg to the following:
 
 Then re-install pymetamaplite:
 
-   To be documented
+    python3 -m build
+    python3 -m pip install dist/pymetamaplite-{version}-py3-cp3xx-cp3xx-{arch}-.whl
 
-For small collections of text, this may not be worth the trouble.
+## Using setup.py (for older versions of Python 3)
+
+Modify setup.py to the following:
+
+    # -*- coding: utf-8 -*-
+
+    from setuptools import setup, find_packages
+    from Cython.Build import cythonize
+
+    setup(name='pymetamaplite',
+          version='0.2',
+          description='MetaMapLite Entity Recognizer implementation',
+          author='Willie Rogers',
+          author_email='wjrogers@mail.nih.gov',
+          url="https://metamap.nlm.nih.gov/",
+          license="Public Domain",
+          packages=find_packages(),
+          classifiers=[
+              "Programming Language :: Python :: 3",
+              "Operating System :: OS Independent",
+          ],
+          python_requires='>=3.6',
+          ext_modules=cythonize("*/*.py"))
+
+Then re-install pymetamaplite:
+
+	$ pip install cython
+    $ pip install .
+
