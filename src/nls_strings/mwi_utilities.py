@@ -202,7 +202,7 @@ def strip_possessives(astring):
 
 def remove_extra_blanks(astring):
     """ remove extra inter-token blanks """
-    return ''.join(astring.split())
+    return astring.replace('  ', ' ')
 
 
 def normalize_ast_string(aststring):
