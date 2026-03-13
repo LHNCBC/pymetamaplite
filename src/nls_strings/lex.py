@@ -17,7 +17,7 @@ def uninvert(s):
     @return OUTPUT: string containing the uninverted string.
 
     """
-    if s is '':
+    if s == '':
         return s
     sp = s.find(COMMA)
     while sp > 0:
