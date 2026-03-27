@@ -10,6 +10,7 @@ from metamaplite.filtering import restrict_postings_to_sources
 from metamaplite.filtering import restrict_postings_to_semantic_types
 from metamaplite.simple_cache import SimpleCache
 from metamaplite.uda_lookup import UDALookup
+from nls_strings.mwi_utilities import normalize_meta_string
 
 Term = namedtuple('Term', ['text', 'start', 'end', 'postings'])
 
@@ -46,7 +47,8 @@ class MetaMapLite():
                  excludedterms=[],
                  minimum_length=3,
                  use_cache=False,
-                 uda_dict={}):
+                 uda_dict={},
+                 norm_func=normalize_meta_string):
         """ Initialize MetaMapLite instance
 
         PARAMS:
@@ -57,12 +59,16 @@ class MetaMapLite():
           stopwords: set of stopwords
           excludedterms: set of id|term (cui|term)
           minimum_length:  minimum length of terms
+          use_cache: boolean
+          uda_dict: user defined acronym dictionary
+          norm_func: term normalization function
         """
         self.indexname = 'cuisourceinfo'
         if not os.path.exists(ivfdir):
             logging.error('index directory %s does not exist. ', ivfdir)
             exit()
         self.index = IRIndex(ivfdir, self.indexname)
+        self.base_index = self.index
         self.sources = sources
         self.semtypes = semtypes
         self.minimum_length = minimum_length
@@ -82,8 +88,9 @@ class MetaMapLite():
         else:
             self.excludedterms = set(excludedterms)
         # user defined acronyms/abbreviations
+        self.uda_dict = uda_dict
         if uda_dict != {}:
-            self.index = UDALookup(self.index, uda_dict)
+            self.index = UDALookup(self.base_index, uda_dict)
         # lookup index caches
         if use_cache:
             self.use_cache = use_cache
@@ -91,6 +98,7 @@ class MetaMapLite():
             self.semtypeindex = SimpleCache(self.semtypeindex)
             self.cuiconceptindex = SimpleCache(self.cuiconceptindex)
             self.treecodeindex = SimpleCache(self.treecodeindex)
+        self.norm_func = norm_func
 
     def set_semtypes(self, semtypelist):
         """ set restrict to semantic type list """
@@ -100,13 +108,26 @@ class MetaMapLite():
         """ set restrict to source list """
         self.sources = sourcelist
 
+    def set_uda_dict(self, uda_dict):
+        """ overwrite index + uda_dict with index and new uda_dict """
+        self.index = UDALookup(self.base_index, uda_dict)
+        if self.use_cache:
+            self.index = SimpleCache(self.index)
+
     def lookup(self, tokensublist, column=3):
         """Extract text part of tokens, join and call index lookup
            function."""
         term = " ".join([token.text for token in tokensublist]).lower()
         if len(term) >= self.minimum_length and (term not in self.stopwords):
             logging.debug('metamaplite:lookup():term: %s' % term)
-            return self.index.lookup(term, column)
+            postings = self.index.lookup(term, column)
+            if self.norm_func is not None:
+                normterm = self.norm_func(term)
+                if term != normterm:
+                    norm_postings = self.index.lookup(normterm, column)
+                    return postings + norm_postings
+                else:
+                    return postings
         else:
             return None
 
