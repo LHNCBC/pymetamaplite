@@ -1,8 +1,19 @@
+""" An example of using pymetamap library.
+
+    Set environment variable MML_INDEXDIR to location of MetaMapLite index:
+    In bash:
+
+       export MML_INDEXDIR=<mml-indexdir>
+
+"""
+import os
 import nltk
-from collections import namedtuple
 from metamaplite import MetaMapLite, Token
 
-ivfdir = 'pathto/public_mm_lite/data/ivf/2020AA/USAbase'
+if 'MML_INDEXDIR' in os.environ:
+    ivfdir = os.environ['MML_INDEXDIR']
+else:
+    ivfdir = 'pathto/public_mm_lite/data/ivf/2025AB/USAbase'
 
 label = ''
 case_sensitive = False

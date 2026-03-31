@@ -1,17 +1,26 @@
+"""An example of using pyMetaMapLite library.
+
+Use --indexdir option or set environment variable MML_INDEXDIR to
+location of MetaMapLite index,
+
+To set the MML_INDEXDIR environment variable bash:
+
+     export MML_INDEXDIR=<mml-indexdir>
+
+"""
 import argparse
-from collections import namedtuple
+import os
 from nltk import sent_tokenize, pos_tag
 from nltk.tokenize import TreebankWordTokenizer
 from metamaplite import MetaMapLite, Token
 
-ivfdir = 'pathto/public_mm_lite/data/ivf/2020AA/USAbase'
 
 label = ''
 case_sensitive = False
 use_sources = []
 use_semtypes = []
-# The token's part-of-speech must be in postags set to be looked up in
-# dictionary.
+# The head token's part-of-speech must be in postags set to be looked
+# up in term dictionary.
 postags = set(["CD", "FW", "RB", "IN", "NN", "NNS",
                "NNP", "NNPS", "JJ", "JJR", "JJS", "LS"])
 stopwords = []
@@ -64,14 +73,17 @@ def loadtextfile(inputfile):
 
 
 if __name__ == '__main__':
+    if 'MML_INDEXDIR' in os.environ:
+        ivfdir = os.environ['MML_INDEXDIR']
+    else:
+        ivfdir = 'pathto/public_mm_lite/data/ivf/2025AB/USAbase'
     parser = argparse.ArgumentParser(
         description="test metamaplite")
     parser.add_argument('inputfile',
                         help='file containing input text to process.')
-    parser.add_argument('--ivfdir',
-                        help='inverted file index directory.',
-                        default=ivfdir)
+    parser.add_argument('--indexdir', default=ivfdir,
+                        help='inverted file index directory.')
     args = parser.parse_args()
     inputtext = loadtextfile(args.inputfile)
-    sent_resultlist = process(args.ivfdir, inputtext)
+    sent_resultlist = process(args.indexdir, inputtext)
     display_results(sent_resultlist)
