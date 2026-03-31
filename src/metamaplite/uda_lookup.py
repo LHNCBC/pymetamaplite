@@ -12,8 +12,8 @@ class UDALookup:
         """Lookup term in index column, if term is in cache, then use cached
            version.  Otherwise, look up term in index, add it to the
            cache, and return it. """
-        if term in self.uda_dict:
-            result = self.index.lookup(self.uda_dict[term], column)
+        if term.upper() in self.uda_dict:
+            result = self.index.lookup(self.uda_dict[term.upper()], column)
         else:
             result = self.index.lookup(term, column)
         return result
