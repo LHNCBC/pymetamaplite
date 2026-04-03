@@ -92,8 +92,8 @@ class MetaMapLite():
         if uda_dict != {}:
             self.index = UDALookup(self.base_index, uda_dict)
         # lookup index caches
+        self.use_cache = use_cache
         if use_cache:
-            self.use_cache = use_cache
             self.index = SimpleCache(self.index)
             self.semtypeindex = SimpleCache(self.semtypeindex)
             self.cuiconceptindex = SimpleCache(self.cuiconceptindex)
