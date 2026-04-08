@@ -1,7 +1,13 @@
 """Generate variants table used by MetaMapLite (and MetaMap) when
 using MMI format.
 
-LVG is necessary to run this.
+LVG is necessary to run this.  After installing LVG set the
+environment variable LVG_DIR to location of your LVF installation
+directory.
+
+Environment variable LVG_DIR must be defined:
+In bash shell:
+    export LVG_DIR=<location of lvg installation>
 
 This requires Python 3.12 or greater. due to the use of
 itertools.batched.

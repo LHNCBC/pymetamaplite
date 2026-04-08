@@ -1,5 +1,18 @@
 """A program which generates three tables: cuiconcept.txt,
-cuisourceinfo.txt, and cuist.txt """
+cuisourceinfo.txt, cuist.txt, mesh_tc_relaxed.txt, and vars.txt.
+
+LVG is necessary to run this.  After installing LVG set the
+environment variable LVG_DIR to location of your LVF installation
+directory.
+
+Environment variable LVG_DIR must be defined:
+In bash shell:
+    export LVG_DIR=<location of lvg installation>
+
+This requires Python 3.12 or greater. due to the use of
+itertools.batched.
+
+"""
 import argparse
 import os
 from metamaplite.index import extract_mrconso_preferred_names
