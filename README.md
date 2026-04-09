@@ -5,7 +5,7 @@ Python.
 
 # Prerequisites
 
-+ Python 3.8
++ Python 3.12
 + NLTK or some other library that supplies a part of speech tagger and
   a tokenizer.
 
@@ -204,7 +204,7 @@ instantiation of the MetaMapLite instance:
 		
 	mminst = MetaMapLite(ivfdir, use_sources, use_semtypes, postags,
 	                     stopwords, excludedterms=excluded_terms)
-	
+
 # Building Indexes
 
 ## Input Data Tables and Associated Formats
@@ -257,7 +257,40 @@ This file lists semantic type identifiers assigned to each concept:
 
 ## table generation from Metathesaurus files
 
-Not implemented in Python, See Java implementation in MetaMapLite.
+
+see sources in src/metamaplite/index:
+
+    -rw-r--r--  1 user 1408 Apr  1 16:44 extract_mrconso_preferred_names.py
+    -rw-r--r--  1 user 1830 Apr  1 16:47 extract_mrconso_sources.py
+    -rw-r--r--  1 user 6467 Mar 31 12:29 extract_mrsty_semantic_types.py
+    -rw-r--r--  1 user 3774 Apr  3 15:11 extract_treecodes.py
+    -rw-r--r--  1 user 5109 Apr  8 17:11 generate_tables.py
+    -rw-r--r--  1 user 6185 Apr  8 18:01 generate_variants.py
+    -rw-r--r--  1 user 2190 Apr  8 14:40 glean_mrconso.py
+
+The program generate_tables generates the files cuiconcept.txt,
+cuisourceinfo.txt, cuist.txt, mesh\_tc\_relaxed.txt, and vars.txt:
+
+    python -m metamaplite.index.generate_tables umls_tables ivfdir
+	
+The program will create the directory _tables_ in _ivfdir_ containing
+the files cuiconcept.txt, cuisourceinfo.txt, cuist.txt,
+mesh_tc_relaxed.txt, and vars.txt.
+
+    -rw-r--r-- 1 user  16998542 Apr  3 12:49 cuiconcept.txt
+    -rw-r--r-- 1 user  58925701 Apr  3 12:49 cuisourceinfo.txt
+    -rw-r--r-- 1 user   4158875 Apr  3 12:49 cuist.txt
+    -rw-r--r-- 6 user       315 Apr  3 12:38 ifconfig
+    -rw-r--r-- 6 user  51048802 Apr  3 13:15 mesh_tc_relaxed.txt
+    -rw-r--r-- 6 user 130001803 Apr  3 14:43 vars.txt
+	
+NOTE: If lvg is not installed and the environment variable "LVG\_DIR"
+is not defined then the variants file "vars.txt" will not be generated.
+If the variants file is needed later it can be generated using the
+program _generate\_variants_:
+
+	python -m metamaplite.index.generate_variants \
+	     mrconsofile variantsfile
 
 ### ifconfig
 
@@ -268,6 +301,8 @@ This file contains the schemas for tables used in the later sections:
     cui_concept.txt|cuiconcept|2|0,1|cui|concept|TXT|TXT
     mesh_tc_relaxed.txt|meshtcrelaxed|2|0,1|mesh|tc|TXT|TXT
     vars.txt|vars|7|0,2|term|tcat|word|wcat|varlevel|history||TXT|TXT|TXT|TXT|TXT|TXT|TXT
+
+The file _ifconfig_ must be present before index generation.
 
 ## Index generation
 
@@ -296,15 +331,3 @@ processing large collections at the expense of using more memory:
 
     mminst = MetaMapLite(ivfdir, use_sources, use_semtypes, postags,
 	                     stopwords, excludedterms, use_cache=True)
-
-## Using Pyston
-
-Both NLTK and pyMetaMapLite can be run in the Pyston implementation of
-Python.  Pyston provides many of the speedups of Cython without
-requiring translation of the Python to the C language which can be
-problematic on some platforms.
-
-+ Pyston Gihub page: <https://github.com/pyston/pyston>
-+ Documentation on installing Pyston in an existing conda installation:
-  <https://github.com/pyston/pyston/wiki/Using-conda>
-
