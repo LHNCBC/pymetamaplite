@@ -50,8 +50,24 @@ def get_word(line):
         return fields[0]
 
 
+category_dict = {
+    '1': 'adj',
+    '2': 'adv',
+    '4': 'aux',
+    '8': 'compl',
+    '16': 'conj',
+    '32': 'det',
+    '64': 'modal',
+    '128': 'noun',
+    '256': 'prep',
+    '512': 'pron',
+    '1024': 'verb',
+    'n': 'all'
+}
+
+
 def get_category_name(category):
-    return category
+    return category_dict[category]
 
 
 def generate_variant_list_for_term(word):

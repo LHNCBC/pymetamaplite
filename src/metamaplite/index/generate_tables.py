@@ -40,9 +40,17 @@ def create_tables(mrconsofilename, mrstyfilename, mrsatfilename, ivfdir,
     meshtreecodesfilename = "{}/tables/mesh_tc_relaxed.txt".format(ivfdir)
     extract_treecodes.create_table(mrconsofilename, mrsatfilename,
                                    meshtreecodesfilename)
-    varsfilename = "{}/tables/vars.txt".format(ivfdir)
-    generate_variants.create_table(mrconsofilename, varsfilename,
-                                   batchsize=400)
+    if 'LVG_DIR' in os.environ:
+        varsfilename = "{}/tables/vars.txt".format(ivfdir)
+        generate_variants.create_table(mrconsofilename, varsfilename,
+                                       batchsize=400)
+    else:
+        print("""Environment variable LVG_DIR not defined, skipping variant
+        generation.  To generate variant file vars.txt set LVG_DIR to
+        location of LVG installation and run generate_variants:
+
+          python -m metamaplite.index.generate_variants MRCONSO.RRF vars.txt
+        """)
 
 
 def generate_table_config():
